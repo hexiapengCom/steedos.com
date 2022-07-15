@@ -1,4 +1,3 @@
-// import { Widont } from '@/components/home/common'
 import PostItem from '@/components/PostItem'
 import Link from 'next/link'
 import tinytime from 'tinytime'
