@@ -105,47 +105,12 @@ function Header() {
   )
 }
 
-export async function getStaticProps({params}) {
-
-  const {
-    host,
-  } = params
-  const site = await getSiteByDomain(host)
-  
-  const slug = 'steedos-packages'
-  const collection = await getCollectionProducts(slug)
-
-  return {
-    props: {
-      collection,
-      ...site
-    },
-    notFound: !site || !site.homepage,
-    revalidate: parseInt(process.env.NEXT_STATIC_PROPS_REVALIDATE), // In seconds
-  }
-}
-
-export async function getStaticPaths() {
-  const items = await getSiteDomains()
-
-  // Get the paths we want to pre-render based on posts
-  const paths = items.map((item) => ({
-    params: { 
-      host: item.name },
-  }))
-
-  return { paths, fallback: 'blocking' }
-}
-
 export default function Home(props) {
   const {
-    name,
+    name = "华炎魔方低代码平台",
     collection,
-    homepage = {name: '', body: ''}
+    homepage = {name: '赋能企业，打造数字驱动型组织', body: ''}
   } = props
-  const [mobile, setMobile] = useState('')
-  const backgroundImageUrl = '/img/header-background-ellipse.png'
-  const imageUrl = homepage.image?process.env.NEXT_PUBLIC_STEEDOS_SERVER_ROOT_URL + `/api/files/images/${homepage.image}` : null
   return (
     <>
       <Head>

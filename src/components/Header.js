@@ -13,7 +13,7 @@ import { ThemeSelect, ThemeToggle } from './ThemeToggle'
 import { headerNav } from '@/navs/header';
 import useSWR from 'swr'
 
-// import { getCart } from '@/lib/cart.client';
+import { getCart } from '@/lib/cart.client';
 
 const navigation = headerNav;
 
@@ -200,14 +200,14 @@ export function Header({ hasNav = false, navIsOpen, onNavToggle, title, section 
     }
   }, [isOpaque])
 
-  // useSWR('cart', async () => {
-  //   const cart = await getCart();
-  //   if (!cart.error) {
-  //     setCart(cart)
-  //   } else {
-  //     setCart({lines: []})
-  //   }
-  // })
+  useSWR('cart', async () => {
+    const cart = await getCart();
+    if (!cart.error) {
+      setCart(cart)
+    } else {
+      setCart({lines: []})
+    }
+  })
   
   return (
     <>
