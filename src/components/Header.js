@@ -7,13 +7,13 @@ import { Logo } from '@/components/Logo'
 import { useEffect, Fragment, useState } from 'react'
 import { Dialog, Popover, Tab, Transition, Menu } from '@headlessui/react'
 import { MenuIcon, SearchIcon, ChevronDownIcon, XIcon, LogoutIcon, ShoppingBagIcon, ViewGridIcon, UserAddIcon } from '@heroicons/react/outline'
+import { useSession, signIn, signOut } from "next-auth/react"
 import { StarIcon } from '@heroicons/react/solid'
 import { ThemeSelect, ThemeToggle } from './ThemeToggle'
 import { headerNav } from '@/navs/header';
 import useSWR from 'swr'
 
-import { authValidate, goLogin, goLogout, goSignup } from '@/lib/auth.client';
-import { getCart } from '@/lib/cart.client';
+// import { getCart } from '@/lib/cart.client';
 
 const navigation = headerNav;
 
@@ -152,13 +152,8 @@ export function NavPopover({ display = 'md:hidden', className, ...props }) {
           </div>
           {/* {!userInfo.name && <div className="border-t border-gray-200 py-6 px-4 space-y-6">
             <div className="flow-root">
-              <a href="#" className="-m-2 p-2 block font-medium text-gray-900" onClick={goLogin}>
+              <a href="#" className="-m-2 p-2 block font-medium text-gray-900" onClick={signIn}>
                 登录
-              </a>
-            </div>
-            <div className="flow-root">
-              <a href="#" className="-m-2 p-2 block font-medium text-gray-900" onClick={goSignup}>
-                创建账户
               </a>
             </div>
           </div>} */}
@@ -172,6 +167,17 @@ export function NavPopover({ display = 'md:hidden', className, ...props }) {
 }
 
 export function Header({ hasNav = false, navIsOpen, onNavToggle, title, section }) {
+  const { data: session } = useSession()
+
+  const user = session? {
+    name: session.user.name,
+    email: session.user.email,
+  } : {
+    name: '',
+    email: '',
+  } 
+
+
   let [isOpaque, setIsOpaque] = useState(false)
 
   const [open, setOpen] = useState(false)
@@ -194,23 +200,14 @@ export function Header({ hasNav = false, navIsOpen, onNavToggle, title, section 
     }
   }, [isOpaque])
 
-  useSWR('AuthValidate', async () => {
-    const userInfo = await authValidate();
-    if (!userInfo.error) {
-      setUserInfo(userInfo)
-    } else {
-      setUserInfo({})
-    }
-  })
-
-  useSWR('cart', async () => {
-    const cart = await getCart();
-    if (!cart.error) {
-      setCart(cart)
-    } else {
-      setCart({lines: []})
-    }
-  })
+  // useSWR('cart', async () => {
+  //   const cart = await getCart();
+  //   if (!cart.error) {
+  //     setCart(cart)
+  //   } else {
+  //     setCart({lines: []})
+  //   }
+  // })
   
   return (
     <>
@@ -411,20 +408,10 @@ export function Header({ hasNav = false, navIsOpen, onNavToggle, title, section 
                                 购物车 ({cart?.lines?.length})
                               </a>
                             </Menu.Item>)} */}
-                            {!userInfo.name && (
-                            <Menu.Item>
-                              <a href="#" onClick={goSignup} className="font-medium text-gray-900 group flex rounded-md items-center w-full px-2 py-2 text-sm">
-                                <UserAddIcon
-                                  className="w-5 h-5 mr-2 text-sky-400"
-                                  aria-hidden="true"
-                                />
-                              免费注册账户
-                              </a>
-                            </Menu.Item>)}
 
-                            {!userInfo.name && (
+                            {!session && (
                             <Menu.Item>
-                              <a href="#" onClick={goLogin} className="font-medium text-gray-900 group flex rounded-md items-center w-full px-2 py-2 text-sm">
+                              <a href="#" onClick={signIn} className="font-medium text-gray-900 group flex rounded-md items-center w-full px-2 py-2 text-sm">
                                 <ShoppingBagIcon
                                   className="w-5 h-5 mr-2 text-sky-400"
                                   aria-hidden="true"
@@ -433,6 +420,21 @@ export function Header({ hasNav = false, navIsOpen, onNavToggle, title, section 
                               </a>
                             </Menu.Item>)}
 
+                            {session && (
+                            <Menu.Item>
+                              <button
+                                onClick={signOut}
+                                className={`font-medium text-gray-900 group flex rounded-md items-center w-full px-2 py-2 text-sm`}
+                              >
+                                <LogoutIcon
+                                  className="w-5 h-5 mr-2 text-sky-400"
+                                  aria-hidden="true"
+                                />
+                                注销
+                              </button>
+                            </Menu.Item>
+                            )}
+                            
                             <Menu.Item>
                               <a href="https://console.steedos.cn" target="_blank" className="font-medium text-gray-900 group flex rounded-md items-center w-full px-2 py-2 text-sm">
                                 <ViewGridIcon
@@ -453,20 +455,6 @@ export function Header({ hasNav = false, navIsOpen, onNavToggle, title, section 
                               </a>
                             </Menu.Item>
 
-                            {userInfo.name && (
-                            <Menu.Item>
-                              <button
-                                onClick={goLogout}
-                                className={`font-medium text-gray-900 group flex rounded-md items-center w-full px-2 py-2 text-sm`}
-                              >
-                                <LogoutIcon
-                                  className="w-5 h-5 mr-2 text-sky-400"
-                                  aria-hidden="true"
-                                />
-                                注销
-                              </button>
-                            </Menu.Item>
-                            )}
                           </div>
                         </Menu.Items>
                       </Transition>
